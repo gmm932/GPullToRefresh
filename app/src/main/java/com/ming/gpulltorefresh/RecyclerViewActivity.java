@@ -13,11 +13,14 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RecyclerViewActivity extends AppCompatActivity {
 
     GPullToRefreshLayout pullToRefreshLayout;
     RecyclerView recyclerView;
+    SimpleAdapter adapter;
+    int startPage = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,28 +37,39 @@ public class RecyclerViewActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         pullToRefreshLayout.setRefreshing(false);
+                        adapter.data.clear();
+                        startPage ++ ;
+                        adapter.data.addAll(genTestData(startPage));
+                        adapter.notifyDataSetChanged();
                     }
                 }, 1000);
             }
         });
 
-        ArrayList<String> items = new ArrayList<>();
 
-        for (int i = 0 ; i < 50; i++) {
-            items.add("这是第 " + i + " item");
-        }
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler);
         recyclerView.setHasFixedSize(true);
+        adapter = new SimpleAdapter(genTestData(startPage));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new SimpleAdapter(items));
+        recyclerView.setAdapter(adapter);
+    }
+
+    private List<String> genTestData(int page) {
+        List<String> data = new ArrayList<>();
+
+        for (int i = page * 10 ; i >= 0; i--) {
+            data.add("这是第 " + i + " item");
+        }
+
+        return data;
     }
 
     private class SimpleAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        ArrayList<String> data;
+        public List<String> data;
 
-        SimpleAdapter(ArrayList<String> data) {
+        SimpleAdapter(List<String> data) {
             this.data = data;
         }
 

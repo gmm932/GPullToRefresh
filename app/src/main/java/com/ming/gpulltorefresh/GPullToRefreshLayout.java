@@ -3,11 +3,13 @@ package com.ming.gpulltorefresh;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
@@ -29,6 +31,13 @@ public class GPullToRefreshLayout extends ViewGroup {
     private int mEvent = 0;
     private OnRefreshListener mListener;
 
+
+    private boolean mRefreshing;
+    private int mActivePointerId;
+    private boolean mIsBeingDragged;
+    private float mInitialMotionY;
+    private int mTouchSlop;
+
     public GPullToRefreshLayout(Context context) {
         this(context, null);
 
@@ -40,6 +49,9 @@ public class GPullToRefreshLayout extends ViewGroup {
 
     public GPullToRefreshLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+
+        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
         mRefreshView = new FrameLayout(context);
         mRefreshView.setBackgroundColor(ResourcesCompat.getColor(context.getResources(), R.color.colorAccent, context.getTheme()));
@@ -86,7 +98,7 @@ public class GPullToRefreshLayout extends ViewGroup {
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mEvent == 0) {
-                    if (mTotalDragDistance > 0 || true) {
+                    if (mTotalDragDistance > 0 || !canViewScrollUp(mTarget)) {
                         mTotalDragDistance += (ev.getY() - mLastDistance) / radio;
                         if (mTotalDragDistance < 0) {
                             mTotalDragDistance = 0;
@@ -105,6 +117,7 @@ public class GPullToRefreshLayout extends ViewGroup {
                 // 根据下拉距离改变比例
                 radio = (float) (2 + 2 * Math.tan(Math.PI / 2 / getMeasuredHeight() * mTotalDragDistance));
                 if (mTotalDragDistance > 0) {
+                    mRefreshing = true;
                     requestLayout();
                 }
                 break;
@@ -114,7 +127,9 @@ public class GPullToRefreshLayout extends ViewGroup {
         }
 
 
-        super.dispatchTouchEvent(ev);
+        if (!mRefreshing) {
+            super.dispatchTouchEvent(ev);
+        }
         return true;
     }
 
@@ -194,6 +209,7 @@ public class GPullToRefreshLayout extends ViewGroup {
     public void setRefreshing(boolean refreshing) {
         if (!refreshing) {
             backToRefresh(0);
+            mRefreshing = false;
         }
     }
 
