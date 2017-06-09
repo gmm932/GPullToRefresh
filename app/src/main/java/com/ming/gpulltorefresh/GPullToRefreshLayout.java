@@ -32,7 +32,7 @@ public class GPullToRefreshLayout extends ViewGroup {
     private OnRefreshListener mListener;
 
 
-    private boolean mRefreshing;
+    private boolean mRefreshing = false;
     private int mActivePointerId;
     private boolean mIsBeingDragged;
     private float mInitialMotionY;
@@ -99,7 +99,7 @@ public class GPullToRefreshLayout extends ViewGroup {
             case MotionEvent.ACTION_MOVE:
                 if (mEvent == 0) {
                     if (mTotalDragDistance > 0 || !canViewScrollUp(mTarget)) {
-                        mTotalDragDistance += (ev.getY() - mLastDistance) / radio;
+                        mTotalDragDistance += (ev.getY() - mLastDistance) /*/* 0.75*/  / radio;
                         if (mTotalDragDistance < 0) {
                             mTotalDragDistance = 0;
                         }
@@ -116,8 +116,7 @@ public class GPullToRefreshLayout extends ViewGroup {
                 mLastDistance = ev.getY();
                 // 根据下拉距离改变比例
                 radio = (float) (2 + 2 * Math.tan(Math.PI / 2 / getMeasuredHeight() * mTotalDragDistance));
-                if (mTotalDragDistance > 0) {
-                    mRefreshing = true;
+                if (mTotalDragDistance >= 0) {
                     requestLayout();
                 }
                 break;
@@ -126,8 +125,7 @@ public class GPullToRefreshLayout extends ViewGroup {
                 break;
         }
 
-
-        if (!mRefreshing) {
+        if (mTotalDragDistance == 0) {
             super.dispatchTouchEvent(ev);
         }
         return true;
@@ -138,6 +136,7 @@ public class GPullToRefreshLayout extends ViewGroup {
             backToRefresh(REFRESH_MIN_DISTANCE);
             if (mListener != null) {
                 mListener.onRefresh();
+                mRefreshing = true;
             }
         } else {
             setRefreshing(false);
@@ -213,10 +212,15 @@ public class GPullToRefreshLayout extends ViewGroup {
         }
     }
 
+    public boolean isRefreshing() {
+        return mRefreshing;
+    }
+
     public void setOnRefreshListener(OnRefreshListener listener) {
         mListener = listener;
     }
 
     public static interface OnRefreshListener {
         public void onRefresh();
-    }}
+    }
+}

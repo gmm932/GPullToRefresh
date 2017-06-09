@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +97,12 @@ public class RecyclerViewActivity extends AppCompatActivity {
             ItemHolder(View itemView) {
                 super(itemView);
                 textView = (TextView) itemView.findViewById(android.R.id.text1);
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(v.getContext(), data.get(getLayoutPosition()), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             void onBind(String str) {
