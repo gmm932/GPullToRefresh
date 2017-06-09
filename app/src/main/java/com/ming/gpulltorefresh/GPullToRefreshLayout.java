@@ -125,7 +125,8 @@ public class GPullToRefreshLayout extends ViewGroup {
                 break;
         }
 
-        if (mTotalDragDistance == 0) {
+        //只有再未刷新和下拉距离为0时才把事件分发给mTarget
+        if (!mRefreshing && mTotalDragDistance == 0) {
             super.dispatchTouchEvent(ev);
         }
         return true;
@@ -134,7 +135,8 @@ public class GPullToRefreshLayout extends ViewGroup {
     private void onPullRelease() {
         if (mTotalDragDistance >= dp2px(REFRESH_MIN_DISTANCE)) {
             backToRefresh(REFRESH_MIN_DISTANCE);
-            if (mListener != null) {
+            if (mListener != null && !mRefreshing) {
+                //如果正在刷新的时候下拉，防止再次触发onRefresh回调
                 mListener.onRefresh();
                 mRefreshing = true;
             }
