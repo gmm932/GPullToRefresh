@@ -43,7 +43,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
                         adapter.data.addAll(genTestData(startPage));
                         adapter.notifyDataSetChanged();
                     }
-                }, 2000);
+                }, 1000);
             }
         });
 

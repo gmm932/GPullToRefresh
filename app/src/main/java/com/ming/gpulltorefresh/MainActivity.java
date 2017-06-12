@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void initList() {
         data.put(RecyclerViewActivity.class.getSimpleName(), RecyclerViewActivity.class);
+        data.put(ScrollerActivity.class.getSimpleName(), ScrollerActivity.class);
     }
 
 

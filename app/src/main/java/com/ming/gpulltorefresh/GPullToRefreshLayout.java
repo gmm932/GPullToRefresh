@@ -51,6 +51,10 @@ public class GPullToRefreshLayout extends ViewGroup {
         super(context, attrs, defStyleAttr);
 
 
+        if (getChildCount() > 1) {
+            throw new IllegalArgumentException("Just Required Only One Child View ");
+        }
+
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
         mRefreshView = new FrameLayout(context);
@@ -133,6 +137,7 @@ public class GPullToRefreshLayout extends ViewGroup {
     }
 
     private void onPullRelease() {
+
         if (mTotalDragDistance >= dp2px(REFRESH_MIN_DISTANCE)) {
             backToRefresh(REFRESH_MIN_DISTANCE);
             if (mListener != null && !mRefreshing) {
@@ -141,7 +146,8 @@ public class GPullToRefreshLayout extends ViewGroup {
                 mRefreshing = true;
             }
         } else {
-            setRefreshing(false);
+            //这里不用setRefreshing(false);是因为我们并不知道是不是真的刷新完成了
+            backToRefresh(0);
         }
     }
 
@@ -207,6 +213,10 @@ public class GPullToRefreshLayout extends ViewGroup {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getContext().getResources().getDisplayMetrics());
     }
 
+    /**
+     * 该方法仅提供给外部使用
+     * @param refreshing
+     */
     public void setRefreshing(boolean refreshing) {
         if (!refreshing) {
             backToRefresh(0);
