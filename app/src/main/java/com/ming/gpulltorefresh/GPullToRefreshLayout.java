@@ -30,6 +30,7 @@ public class GPullToRefreshLayout extends ViewGroup {
     private float radio = RADIO;
     private int mEvent = 0;
     private OnRefreshListener mListener;
+    private IPull pull;
 
 
     private boolean mRefreshing = false;
@@ -88,8 +89,13 @@ public class GPullToRefreshLayout extends ViewGroup {
 
     }
 
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
+
+        if (mRefreshing) {
+            return true;
+        }
 
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
@@ -121,6 +127,9 @@ public class GPullToRefreshLayout extends ViewGroup {
                 // 根据下拉距离改变比例
                 radio = (float) (2 + 2 * Math.tan(Math.PI / 2 / getMeasuredHeight() * mTotalDragDistance));
                 if (mTotalDragDistance >= 0) {
+                    if (pull != null) {
+                        pull.setTargetOffsetTop(mTotalDragDistance);
+                    }
                     requestLayout();
                 }
                 break;
